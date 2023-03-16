@@ -39,59 +39,47 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var path_1 = __importDefault(require("path"));
+exports.resizer = exports.getFilePath = void 0;
 var sharp_1 = __importDefault(require("sharp"));
 var fs_1 = require("fs");
+var path_1 = __importDefault(require("path"));
 function getFilePath(fileName) {
-    var exts = [".png", ".jpg", ".webp"];
-    var fullFilename = "";
-    var matches = [];
-    for (var _i = 0, exts_1 = exts; _i < exts_1.length; _i++) {
-        var e = exts_1[_i];
-        matches.push(path_1.default.resolve("assets/full/" + fileName + e));
-    }
-    for (var _a = 0, matches_1 = matches; _a < matches_1.length; _a++) {
-        var m = matches_1[_a];
-        if ((0, fs_1.existsSync)(m)) {
-            fullFilename = m;
-            break;
-        }
-    }
-    return fullFilename;
-}
-function resize(req, res, next) {
     return __awaiter(this, void 0, void 0, function () {
-        var query, filename, image, height, width, error_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    console.log(req.query);
-                    query = req.query;
-                    filename = query.filename;
-                    image = getFilePath(filename);
-                    height = Number(query.height);
-                    width = Number(query.width);
-                    _a.label = 1;
-                case 1:
-                    _a.trys.push([1, 4, , 5]);
-                    if (!!(0, fs_1.existsSync)("assets/thumb/".concat(filename, "_").concat(height, "_").concat(width, ".jpg"))) return [3 /*break*/, 3];
-                    return [4 /*yield*/, (0, sharp_1.default)(image)
-                            .resize(width, height)
-                            .toFormat("jpg")
-                            .toFile("assets/thumb/".concat(filename, "_").concat(height, "_").concat(width, ".jpg"))];
-                case 2:
-                    _a.sent();
-                    _a.label = 3;
-                case 3: return [3 /*break*/, 5];
-                case 4:
-                    error_1 = _a.sent();
-                    console.log(error_1);
-                    return [3 /*break*/, 5];
-                case 5:
-                    next();
-                    return [2 /*return*/];
+        var exts, fullFilename, matches, _i, exts_1, e, _a, matches_1, m;
+        return __generator(this, function (_b) {
+            exts = [".png", ".jpg", ".webp"];
+            fullFilename = "";
+            matches = [];
+            for (_i = 0, exts_1 = exts; _i < exts_1.length; _i++) {
+                e = exts_1[_i];
+                matches.push(path_1.default.resolve("assets/full/" + fileName + e));
             }
+            for (_a = 0, matches_1 = matches; _a < matches_1.length; _a++) {
+                m = matches_1[_a];
+                if ((0, fs_1.existsSync)(m)) {
+                    fullFilename = m;
+                    break;
+                }
+            }
+            return [2 /*return*/, fullFilename];
         });
     });
 }
-exports.default = resize;
+exports.getFilePath = getFilePath;
+var resizer = function (imagePath, filename, height, width) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!!(0, fs_1.existsSync)("assets/thumb/".concat(filename, "_").concat(height, "_").concat(width, ".jpg"))) return [3 /*break*/, 2];
+                return [4 /*yield*/, (0, sharp_1.default)(imagePath)
+                        .resize(width, height)
+                        .toFormat("jpg")
+                        .toFile("assets/thumb/".concat(filename, "_").concat(height, "_").concat(width, ".jpg"))];
+            case 1:
+                _a.sent();
+                _a.label = 2;
+            case 2: return [2 /*return*/];
+        }
+    });
+}); };
+exports.resizer = resizer;

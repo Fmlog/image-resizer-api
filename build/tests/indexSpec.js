@@ -42,9 +42,47 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var supertest_1 = __importDefault(require("supertest"));
 var index_1 = __importDefault(require("../index"));
 var fs_1 = require("fs");
+var resize_util_1 = require("../api/utilities/resize_util");
 var request = (0, supertest_1.default)(index_1.default);
-describe("Tests for the endpoint", function () {
-    describe("GET /", function () {
+describe("Tests for the middleware only", function () {
+    describe("Tests for the resizer function", function () {
+        it("expects the resize function to work", function () { return __awaiter(void 0, void 0, void 0, function () {
+            var imagePath, resizedImg;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        imagePath = "assets/full/femi.jpg";
+                        resizedImg = "assets/thumb/femi_250_250.jpg";
+                        if ((0, fs_1.existsSync)(resizedImg)) {
+                            (0, fs_1.unlinkSync)(resizedImg);
+                        }
+                        return [4 /*yield*/, (0, resize_util_1.resizer)(imagePath, "femi", 250, 250)];
+                    case 1:
+                        _a.sent();
+                        expect((0, fs_1.existsSync)(resizedImg)).toBeTrue();
+                        (0, fs_1.unlinkSync)(resizedImg);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+    });
+});
+describe("Tests for the getFilePath function", function () {
+    it("expects getFilePath to return full path", function () { return __awaiter(void 0, void 0, void 0, function () {
+        var fullPath;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, (0, resize_util_1.getFilePath)("femi")];
+                case 1:
+                    fullPath = _a.sent();
+                    expect((0, fs_1.existsSync)(fullPath)).toBeTrue();
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+});
+describe("Tests for the endpoints", function () {
+    describe("Tests GET /", function () {
         it("expects to get correct http status response", function () { return __awaiter(void 0, void 0, void 0, function () {
             var response;
             return __generator(this, function (_a) {
@@ -59,74 +97,32 @@ describe("Tests for the endpoint", function () {
         }); });
     });
 });
-describe("Tests for the resize middleware", function () {
-    describe("Tests incomplete query", function () {
-        var response;
-        beforeEach(function () { return __awaiter(void 0, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get("/api/?filename=femi")];
-                    case 1:
-                        response = _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        it("GET /api with missing width produces 400 status code", function () {
-            expect(response.status).toEqual(404);
-            expect(response.text).toEqual("Image query error, please check query");
+describe("Tests GET /api/image", function () {
+    var response;
+    it("expects image file to be written", function () { return __awaiter(void 0, void 0, void 0, function () {
+        var response, imgExport;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, request.get("/api/image?filename=femi&width=200&height=200")];
+                case 1:
+                    response = _a.sent();
+                    imgExport = "assets/thumb/femi_200_200.jpg";
+                    expect(response.status).toEqual(200);
+                    expect((0, fs_1.existsSync)(imgExport)).toBeTrue();
+                    return [2 /*return*/];
+            }
         });
-        it("expects image file to be written", function () { return __awaiter(void 0, void 0, void 0, function () {
-            var response, imgExport;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, request.get("/api?filename=femi&width=200&height=200")];
-                    case 1:
-                        response = _a.sent();
-                        imgExport = "assets/thumb/femi.jpg";
-                        expect(response.status).toEqual(200);
-                        expect((0, fs_1.existsSync)(imgExport)).toBeTrue();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-    });
+    }); });
+    it("expects query with missing params return 400 status code and 'wrong query' error ", function () { return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, request.get("/api/image?filename=femi")];
+                case 1:
+                    response = _a.sent();
+                    expect(response.status).toEqual(400);
+                    expect(response.text).toEqual("Image query error, please check query");
+                    return [2 /*return*/];
+            }
+        });
+    }); });
 });
-// const request = express.request;
-// const response = express.response;
-// describe("Server", () => {
-//   let server: any;
-//   beforeAll(() => {
-//     server = require("../index");
-//   });
-//   afterAll(() => {
-//     server.close();
-//   });
-//   describe('GET /', () => {
-//     let data = {}
-//     beforeAll(d)
-//   })
-// });
-// describe("Tests for the endpoint", function () {
-//   it("expects to get correct http status respones", async () => {
-//     try {
-//       const response = await request.get("");
-//       expect(response.status).toBe(200);
-//     } catch (err) {
-//       console.log(err);
-//     }
-//   });
-// });
-// describe("Tests for the resize middleware", function () {
-//   it("expects image file to be written", async (done) => {
-//     const query = { filename: "femi", width: "200", height: "200" };
-//     resize(query, "", () => {});
-//     const imgExport = `assets/thumb/${query.filename}.jpg`;
-//     expect(existsSync(imgExport)).toBe(true);
-//   });
-//   it("expects error to be thrown if file does not exist", (done) => {
-//     const response = request.get("");
-//     expect(response.text).toBe("Image does not exist");
-//     done();
-//   });
-// });

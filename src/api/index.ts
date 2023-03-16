@@ -1,17 +1,22 @@
 import express from "express";
 import path from "path";
-import resize from "./resize";
+import imageProcessor from "./image_processor";
 
 const image = express.Router();
 
-image.get("/api", resize, (req, res) => {
-  const query = req.query;
-  const imgExport = `assets/thumb/${query.filename}.jpg`;
-  try {
-    res.status(200).sendFile(path.resolve(imgExport));
-  } catch (error) {
-    res.status(404).send("Image query error, please check query");
+image.get(
+  "/api/image",
+  imageProcessor,
+  (req: express.Request, res: express.Response) => {
+    const query = req.query;
+    const imgExport = `assets/thumb/${query.filename}_${query.height}_${query.width}.jpg`;
+    
+    try {
+      res.status(200).sendFile(path.resolve(imgExport));
+    } catch (error) {
+      res.send(`Something went wrong ${error}`);
+    }
   }
-});
+);
 
 export default image;

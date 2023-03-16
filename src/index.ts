@@ -6,7 +6,7 @@ const PORT = 3000;
 
 app.use("/", image);
 
-app.get("", (req, res) => {
+app.get("", (req: express.Request, res: express.Response) => {
   res.status(200).send("Image resizer");
 });
 
